@@ -4,6 +4,7 @@ package br.com.calculoImpostos.api.controllers;
 import br.com.calculoImpostos.api.dtos.TaxRequestDTO;
 import br.com.calculoImpostos.api.dtos.TaxResponseDTO;
 import br.com.calculoImpostos.api.services.TaxService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class TaxController {
 
 
     @PostMapping
-    public ResponseEntity<TaxResponseDTO> registerTax(@RequestBody TaxRequestDTO request) {
+    public ResponseEntity<TaxResponseDTO> registerTax(@Valid @RequestBody TaxRequestDTO request) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(taxService.registerTax(request));
     }
