@@ -1,23 +1,22 @@
 package br.com.calculoImpostos.api.exceptions;
 
+import java.util.List;
+
 public class ErrorResponse {
     private int statusCode;
-    private String message;
+    private List<String> messages;
 
-    public ErrorResponse(int statusCode, String message) {
+    public ErrorResponse(int statusCode, List<String> messages) {
         this.statusCode = statusCode;
-        this.message = message;
+        this.messages = messages;
     }
 
-    public String getMensagem() {
-        return message;
+    public List<String> getMessages() {
+        return messages;
     }
-
 
     public int getStatusCode() {
         return statusCode;
     }
-
-
 }
 
