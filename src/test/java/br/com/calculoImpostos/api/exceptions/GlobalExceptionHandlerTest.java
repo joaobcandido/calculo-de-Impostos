@@ -25,14 +25,16 @@ class GlobalExceptionHandlerTest {
         TaxNotFoundException exception = new TaxNotFoundException(errorMessage);
 
         // Act
-        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleResourceNotFoundException(exception);
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleTaxNotFoundException(exception);
 
         // Assert
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        Assertions.assertEquals(errorMessage, response.getBody().getMensagem());
+        Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), response.getBody().getStatusCode());
+        Assertions.assertTrue(response.getBody().getMessages().contains(errorMessage));
     }
+
     @Test
     void testHandleGenericException() {
         // Arrange
@@ -43,11 +45,13 @@ class GlobalExceptionHandlerTest {
         ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleGenericException(exception);
 
         // Assert
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        Assertions.assertEquals(expectedMessage, response.getBody().getMensagem());
-        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getBody().getStatusCode());
+        Assertions.assertNotNull(response, "A resposta não deve ser nula.");
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode(), "O status HTTP deve ser INTERNAL_SERVER_ERROR.");
+        Assertions.assertNotNull(response.getBody(), "O corpo da resposta não deve ser nulo.");
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getBody().getStatusCode(), "O código de status deve ser 500.");
+        Assertions.assertTrue(response.getBody().getMessages().contains(expectedMessage), "A lista de mensagens deve conter a mensagem esperada.");
     }
+
     @Test
     void testHandleTaxAlreadyRegisteredException() {
         // Arrange
@@ -55,12 +59,13 @@ class GlobalExceptionHandlerTest {
         TaxAlreadyRegisteredException exception = new TaxAlreadyRegisteredException(expectedMessage);
 
         // Act
-        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleResourceRegisteredException(exception);
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleTaxAlreadyRegisteredException(exception);
 
         // Assert
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        Assertions.assertEquals(expectedMessage, response.getBody().getMensagem());
-        Assertions.assertEquals(HttpStatus.CONFLICT.value(), response.getBody().getStatusCode());
+        Assertions.assertNotNull(response, "A resposta não deve ser nula.");
+        Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode(), "O status HTTP deve ser CONFLICT.");
+        Assertions.assertNotNull(response.getBody(), "O corpo da resposta não deve ser nulo.");
+        Assertions.assertEquals(HttpStatus.CONFLICT.value(), response.getBody().getStatusCode(), "O código de status deve ser 409.");
+        Assertions.assertTrue(response.getBody().getMessages().contains(expectedMessage), "A lista de mensagens deve conter a mensagem esperada.");
     }
 }
