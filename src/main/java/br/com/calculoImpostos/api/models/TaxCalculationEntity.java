@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Entity
-@Table(name = "calculos")
+@Table(name = "calculations")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

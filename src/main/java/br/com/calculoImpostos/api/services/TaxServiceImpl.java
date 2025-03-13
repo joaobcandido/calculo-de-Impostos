@@ -10,6 +10,7 @@ import br.com.calculoImpostos.api.models.TaxCalculationEntity;
 import br.com.calculoImpostos.api.models.TaxEntity;
 import br.com.calculoImpostos.api.repositories.TaxCalculationRepository;
 import br.com.calculoImpostos.api.repositories.TaxRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class TaxServiceImpl implements TaxService {
     }
 
     @Override
+    @Transactional
     public void deleteTax(Long id) {
         if (!taxRepository.existsById(id)) {
             throw new TaxNotFoundException("Imposto com ID " + id + " não encontrado.");
