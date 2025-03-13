@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Entity
-@Table(name = "impostos")
+@Table(name = "taxes")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
