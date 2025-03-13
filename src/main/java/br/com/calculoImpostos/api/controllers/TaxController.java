@@ -24,11 +24,11 @@ public class TaxController {
     public ResponseEntity<TaxResponseDTO> searchTaxById(@PathVariable Long id) {
         return ResponseEntity.ok(taxService.searchTaxById(id));
     }
+
     @GetMapping()
     public ResponseEntity<List<TaxResponseDTO>> searchAllTaxes() {
         return ResponseEntity.ok(taxService.searchAllTaxes());
     }
-
 
     @PostMapping
     public ResponseEntity<TaxResponseDTO> registerTax(@Valid @RequestBody TaxRequestDTO request) {

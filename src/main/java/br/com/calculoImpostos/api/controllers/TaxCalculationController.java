@@ -25,7 +25,6 @@ public class TaxCalculationController {
         this.taxRepository = taxRepository;
     }
 
-
     @PostMapping
     public ResponseEntity<TaxCalculationResponseDTO> calculateTax(@Valid @RequestBody TaxCalculationRequestDTO request) {
 
