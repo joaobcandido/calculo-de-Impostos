@@ -1,0 +1,357 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "API DE CALCULO DE IMPOSTOS",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/usuario/registrar": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "registerUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/usuario/logar": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tipos": {
+      "get": {
+        "tags": [
+          "tax-controller"
+        ],
+        "operationId": "searchAllTaxes",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaxResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "tax-controller"
+        ],
+        "operationId": "registerTax",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calculo": {
+      "post": {
+        "tags": [
+          "tax-calculation-controller"
+        ],
+        "operationId": "calculateTax",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxCalculationRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxCalculationResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tipos/{id}": {
+      "get": {
+        "tags": [
+          "tax-controller"
+        ],
+        "operationId": "searchTaxById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "tax-controller"
+        ],
+        "operationId": "deleteTax",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RegisterUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "joaoadmin"
+          },
+          "password": {
+            "type": "string",
+            "example": "admin123"
+          },
+          "role": {
+            "type": "string",
+            "example": "ADMIN"
+          }
+        },
+        "required": [
+          "password",
+          "role",
+          "username"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "joaoadmin"
+          },
+          "password": {
+            "type": "string",
+            "example": "admin123"
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "TaxRequestDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "ICMS",
+              "ISS",
+              "IPI"
+            ],
+            "example": "ICMS"
+          },
+          "description": {
+            "type": "string",
+            "example": "Imposto sobre Circulação de Mercadorias e Serviços"
+          },
+          "aliquot": {
+            "type": "number",
+            "format": "double",
+            "example": 18
+          }
+        },
+        "required": [
+          "description"
+        ]
+      },
+      "TaxResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string",
+            "enum": [
+              "ICMS",
+              "ISS",
+              "IPI"
+            ],
+            "example": "ICMS"
+          },
+          "description": {
+            "type": "string",
+            "example": "Imposto sobre Circulação de Mercadorias e Serviços"
+          },
+          "aliquot": {
+            "type": "number",
+            "format": "double",
+            "example": 18
+          }
+        }
+      },
+      "TaxCalculationRequestDTO": {
+        "type": "object",
+        "properties": {
+          "typeTaxId": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "baseValue": {
+            "type": "number",
+            "format": "double",
+            "example": 1000.0
+          }
+        }
+      },
+      "TaxCalculationResponseDTO": {
+        "type": "object",
+        "properties": {
+          "typeTax": {
+            "type": "string",
+            "example": "ICMS"
+          },
+          "baseValue": {
+            "type": "number",
+            "format": "double",
+            "example": 1000.0
+          },
+          "aliquot": {
+            "type": "number",
+            "format": "double",
+            "example": 18
+          },
+          "valueTax": {
+            "type": "number",
+            "format": "double",
+            "example": 180.0
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
