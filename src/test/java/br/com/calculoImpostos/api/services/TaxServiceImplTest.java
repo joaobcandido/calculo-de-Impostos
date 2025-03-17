@@ -5,6 +5,7 @@ import br.com.calculoImpostos.api.dtos.TaxResponseDTO;
 import br.com.calculoImpostos.api.enums.TypeTax;
 import br.com.calculoImpostos.api.exceptions.TaxAlreadyRegisteredException;
 import br.com.calculoImpostos.api.exceptions.TaxNotFoundException;
+import br.com.calculoImpostos.api.mappers.TaxMapper;
 import br.com.calculoImpostos.api.models.TaxCalculationEntity;
 import br.com.calculoImpostos.api.models.TaxEntity;
 import br.com.calculoImpostos.api.repositories.TaxCalculationRepository;
@@ -27,6 +28,10 @@ class TaxServiceImplTest {
     private TaxRepository taxRepository;
     @Mock
     private TaxCalculationRepository taxCalculationRepository;
+    @Mock
+    private TaxValidationService taxValidationService;
+    @Mock
+    private TaxMapper taxMapper;
 
     @InjectMocks
     private TaxServiceImpl taxService;
@@ -37,9 +42,11 @@ class TaxServiceImplTest {
         TaxRequestDTO request = new TaxRequestDTO(TypeTax.ICMS, "Imposto sobre Circulação de Mercadorias e Serviços", 18.0);
         TaxEntity taxEntity = new TaxEntity(null, TypeTax.ICMS, "Imposto sobre Circulação de Mercadorias e Serviços", 18.0);
         TaxEntity savedTax = new TaxEntity(1L, TypeTax.ICMS, "Imposto sobre Circulação de Mercadorias e Serviços", 18.0);
+        TaxResponseDTO responseDTO = new TaxResponseDTO(1L, TypeTax.ICMS, "Imposto sobre Circulação de Mercadorias e Serviços", 18.0);
 
-        Mockito.when(taxRepository.findByName(request.name())).thenReturn(Optional.empty());
-        Mockito.when(taxRepository.save(Mockito.any(TaxEntity.class))).thenReturn(savedTax);
+        Mockito.when(taxMapper.toEntity(request)).thenReturn(taxEntity);
+        Mockito.when(taxRepository.save(taxEntity)).thenReturn(savedTax);
+        Mockito.when(taxMapper.toResponseDTO(savedTax)).thenReturn(responseDTO);
 
         // Act
         TaxResponseDTO response = taxService.registerTax(request);
@@ -54,9 +61,9 @@ class TaxServiceImplTest {
     void testThrowExceptionWhenTaxNameAlreadyExists() {
         // Arrange
         TaxRequestDTO request = new TaxRequestDTO(TypeTax.ICMS, "Imposto sobre Circulação de Mercadorias e Serviços", 18.0);
-        TaxEntity existingTax = new TaxEntity(1L, TypeTax.ICMS, "Imposto sobre Circulação de Mercadorias e Serviços", 18.0);
 
-        Mockito.when(taxRepository.findByName(request.name())).thenReturn(Optional.of(existingTax));
+        Mockito.doThrow(new TaxAlreadyRegisteredException("Imposto com nome " + request.name() + " já está cadastrado."))
+                .when(taxValidationService).validateTaxName(request.name());
 
         // Act & Assert
         Assertions.assertThrows(TaxAlreadyRegisteredException.class, () -> taxService.registerTax(request));
@@ -78,8 +85,10 @@ class TaxServiceImplTest {
         // Arrange
         Long taxId = 1L;
         TaxEntity taxEntity = new TaxEntity(taxId, TypeTax.ICMS, "Imposto sobre Circulação de Mercadorias e Serviços", 15.0);
+        TaxResponseDTO responseDTO = new TaxResponseDTO(taxId, TypeTax.ICMS, "Imposto sobre Circulação de Mercadorias e Serviços", 15.0);
 
         Mockito.when(taxRepository.findById(taxId)).thenReturn(Optional.of(taxEntity));
+        Mockito.when(taxMapper.toResponseDTO(taxEntity)).thenReturn(responseDTO);
 
         // Act
         TaxResponseDTO response = taxService.searchTaxById(taxId);
@@ -109,14 +118,29 @@ class TaxServiceImplTest {
                 new TaxEntity(3L, TypeTax.ISS, "Imposto sobre Serviços de Qualquer Natureza", 5.0)
         );
 
+        List<TaxResponseDTO> responseDTOs = List.of(
+                new TaxResponseDTO(1L, TypeTax.ICMS, "Imposto sobre Circulação de Mercadorias e Serviços", 15.0),
+                new TaxResponseDTO(2L, TypeTax.IPI, "Imposto sobre Produtos Industrializados", 10.0),
+                new TaxResponseDTO(3L, TypeTax.ISS, "Imposto sobre Serviços de Qualquer Natureza", 5.0)
+        );
+
         Mockito.when(taxRepository.findAll()).thenReturn(taxes);
+
+        // Mockando o comportamento do taxMapper para cada entidade
+        Mockito.when(taxMapper.toResponseDTO(taxes.get(0))).thenReturn(responseDTOs.get(0));
+        Mockito.when(taxMapper.toResponseDTO(taxes.get(1))).thenReturn(responseDTOs.get(1));
+        Mockito.when(taxMapper.toResponseDTO(taxes.get(2))).thenReturn(responseDTOs.get(2));
 
         // Act
         List<TaxResponseDTO> response = taxService.searchAllTaxes();
 
         // Assert
-        Assertions.assertEquals(3, response.size());
+        Assertions.assertEquals(3, response.size(), "O tamanho da lista de resposta deve ser 3.");
+        Assertions.assertEquals(responseDTOs, response, "A lista de resposta deve ser igual à esperada.");
+        Mockito.verify(taxRepository, Mockito.times(1)).findAll();
+        Mockito.verify(taxMapper, Mockito.times(3)).toResponseDTO(Mockito.any(TaxEntity.class));
     }
+
 
     @Test
     void testDeleteTaxWithMultipleCalculations() {
@@ -166,7 +190,10 @@ class TaxServiceImplTest {
         // Arrange
         Long taxId = 1L;
         TaxEntity taxEntity = new TaxEntity(taxId, TypeTax.ICMS, "Descrição", 10.0);
+        TaxResponseDTO responseDTO = new TaxResponseDTO(taxId, TypeTax.ICMS, "Descrição", 10.0);
+
         Mockito.when(taxRepository.findById(taxId)).thenReturn(Optional.of(taxEntity));
+        Mockito.when(taxMapper.toResponseDTO(taxEntity)).thenReturn(responseDTO);
 
         // Act
         TaxResponseDTO response = taxService.searchTaxById(taxId);
@@ -178,6 +205,7 @@ class TaxServiceImplTest {
         Assertions.assertEquals("Descrição", response.description(), "A descrição deve ser igual à esperada.");
         Assertions.assertEquals(10.0, response.aliquot(), "A alíquota deve ser 10.0.");
         Mockito.verify(taxRepository, Mockito.times(1)).findById(taxId);
+        Mockito.verify(taxMapper, Mockito.times(1)).toResponseDTO(taxEntity);
     }
 
 

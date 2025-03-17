@@ -1,5 +1,8 @@
-package br.com.calculoImpostos.api.jwt;
+package br.com.calculoImpostos.api.config;
 
+
+import br.com.calculoImpostos.api.jwt.JwtAuthenticationEntryPoint;
+import br.com.calculoImpostos.api.jwt.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -39,6 +42,9 @@ public class SecurityConfig {
                     authorize.requestMatchers(HttpMethod.POST, "/usuario/registrar").permitAll();
                     authorize.requestMatchers(HttpMethod.POST, "/usuario/logar").permitAll();
                     authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+                    authorize.requestMatchers("/swagger-ui/**").permitAll();
+                    authorize.requestMatchers("/v3/api-docs/**").permitAll();
+                    authorize.requestMatchers("/swagger-config.json").permitAll();
                     authorize.requestMatchers(HttpMethod.POST, "/tipos").hasRole("ADMIN");
                     authorize.requestMatchers(HttpMethod.DELETE, "/tipos/**").hasRole("ADMIN");
                     authorize.requestMatchers(HttpMethod.POST, "/calculo").hasRole("ADMIN");
@@ -57,4 +63,5 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+
 }

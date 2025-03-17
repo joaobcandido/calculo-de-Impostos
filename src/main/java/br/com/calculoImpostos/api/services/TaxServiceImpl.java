@@ -3,9 +3,8 @@ package br.com.calculoImpostos.api.services;
 
 import br.com.calculoImpostos.api.dtos.TaxRequestDTO;
 import br.com.calculoImpostos.api.dtos.TaxResponseDTO;
-import br.com.calculoImpostos.api.enums.TypeTax;
-import br.com.calculoImpostos.api.exceptions.TaxAlreadyRegisteredException;
 import br.com.calculoImpostos.api.exceptions.TaxNotFoundException;
+import br.com.calculoImpostos.api.mappers.TaxMapper;
 import br.com.calculoImpostos.api.models.TaxCalculationEntity;
 import br.com.calculoImpostos.api.models.TaxEntity;
 import br.com.calculoImpostos.api.repositories.TaxCalculationRepository;
@@ -21,18 +20,22 @@ public class TaxServiceImpl implements TaxService {
 
     private final TaxRepository taxRepository;
     private final TaxCalculationRepository taxCalculationRepository;
+    private final TaxValidationService taxValidationService;
+    private final TaxMapper taxMapper;
 
-    public TaxServiceImpl(TaxRepository taxRepository, TaxCalculationRepository taxCalculationRepository) {
+    public TaxServiceImpl(TaxRepository taxRepository, TaxCalculationRepository taxCalculationRepository, TaxValidationService taxValidationService, TaxMapper taxMapper) {
         this.taxRepository = taxRepository;
         this.taxCalculationRepository = taxCalculationRepository;
+        this.taxValidationService = taxValidationService;
+        this.taxMapper = taxMapper;
     }
 
     @Override
     public TaxResponseDTO registerTax(TaxRequestDTO request) {
-        validateTaxName(request.name());
-        TaxEntity tax = mapToModel(request);
+        taxValidationService.validateTaxName(request.name());
+        TaxEntity tax = taxMapper.toEntity(request);
         TaxEntity savedTax = taxRepository.save(tax);
-        return mapToResponseDTO(savedTax);
+        return taxMapper.toResponseDTO(savedTax);
     }
 
     @Override
@@ -54,36 +57,15 @@ public class TaxServiceImpl implements TaxService {
     public TaxResponseDTO searchTaxById(Long id) {
         TaxEntity tax = taxRepository.findById(id)
                 .orElseThrow(() -> new TaxNotFoundException("Imposto com ID " + id + " não encontrado."));
-        return mapToResponseDTO(tax);
+        return taxMapper.toResponseDTO(tax);
     }
 
     @Override
     public List<TaxResponseDTO> searchAllTaxes() {
         return taxRepository.findAll()
                 .stream()
-                .map(this::mapToResponseDTO)
+                .map(taxMapper::toResponseDTO) // Usando o TaxMapper
                 .collect(Collectors.toList());
     }
 
-    private TaxEntity mapToModel(TaxRequestDTO request) {
-        return new TaxEntity(
-                null,
-                request.name(),
-                request.description(),
-                request.aliquot());
-    }
-
-    private TaxResponseDTO mapToResponseDTO(TaxEntity tax) {
-        return new TaxResponseDTO(
-                tax.getId(),
-                tax.getName(),
-                tax.getDescription(),
-                tax.getAliquot());
-    }
-
-    private void validateTaxName(TypeTax name) {
-        if (taxRepository.findByName(name).isPresent()) {
-            throw new TaxAlreadyRegisteredException("Imposto com nome " + name + " já está cadastrado.");
-        }
-    }
 }
