@@ -10,48 +10,30 @@ Somente usuarios autenticados com a role ADMIN podem acessar os endpoints de cri
 - Spring Boot
 - Spring Security
 - JPA/Hibernate
-- Postgres(ou qualquer outro banco de dados relacional)
 - Maven
 - Swagger
+- Containers
 ## Requisitos
 - JDK 11 ou superior
 - Maven 3.6+
-- Banco de dados Postgres(ou qualquer outro banco de dados relacional)
+-  Docker Compose
+-  Podman
+-  Podman compose
 
-  ## Instalação
+  ##  Executando o projeto localmente
   1 . Clone o repositório:
    ```bash
    git clone git@github.com:joaocandidozup/calculo-de-Impostos.git
   ````
-  2 . Acesse o diretório do projeto:
+  2 . Construir o projeto::
   ````bash
-  cd calculo-de-Impostos
+   mvn clean package
   ````
-  3 . Configure o banco de dados no arquivo application.yml:
+  3 . Executar com Podman Compose:
   ````yml
-  spring:
-  application:
-    name: calculo-de-impostos
-  datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: update
-  show-sql: true
-  springdoc:
-  swagger-ui:
-    url: /swagger-config.json
+   podman-compose up --build
   ````
-  4 . Compile e execute o projeto:
-  ````bash
-  mvn clean install
-  mvn spring-boot:run
-  ````
-    - O sistema estará disponível em: `http://localhost:8080`.
+  O sistema estará disponível em: `http://localhost:8080`
     
   ## Endpoints da API
   Certifique-se de que a aplicação está rodando. Abra o navegador e acesse: http://localhost:8080/swagger-ui/index.html.<br>
