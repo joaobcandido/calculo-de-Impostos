@@ -5,6 +5,24 @@ A API permite que novos usuários se registrem e que usuários existentes façam
 Apenas usuarios autenticados podem acessar os endpoints de listar impostos e listar impostos por ID.<BR>
 Somente usuarios autenticados com a role ADMIN podem acessar os endpoints de criar,excluir impostos e calcular de impostos.
 
+## Diagrama de Fluxo
+Diagrama de fluxo para o arquivo docker-compose.yml<br>
+Este diagrama descreve o fluxo de inicialização dos serviços `app` e `db` e suas dependências.
+````mermaid
+flowchart TD
+  subgraph Docker_Compose_Workflow
+    A[Início] --> B{Iniciar Serviço DB?}
+    B -- Sim --> C[Criar Container DB]
+    C --> D[Configurar Variáveis DB]
+    D --> E[Configurar Healthcheck DB]
+    E --> F{DB Saudável?}
+    F -- Sim --> G[Iniciar Serviço App]
+    G --> H[Configurar Variáveis App]
+    H --> I[Expor Porta 8080]
+    F -- Não --> J[Repetir Healthcheck DB]
+    J --> F
+  end
+````
 ## Tecnologias Utilizadas
 - Java 21
 - Spring Boot
