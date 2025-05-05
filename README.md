@@ -105,10 +105,10 @@ flowchart TD
   ![image](https://github.com/user-attachments/assets/cb655e1c-c10a-43b8-adf8-59eecc57980d)
   ## Testes
    Para rodar os testes unitários, execute o seguinte comando:
-    ````bash
-    mvn test
-    ````
-    ou clique com o botão direito na raiz do projeto e escolha RUN ALL TESTS
+  ````bash
+  mvn test
+  ````
+  ou clique com o botão direito na raiz do projeto e escolha RUN ALL TESTS
   
   ---
   
