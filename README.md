@@ -35,8 +35,7 @@ flowchart TD
 - JDK 11 ou superior
 - Maven 3.6+
 -  Docker Compose
--  Podman
--  Podman compose
+-  Docker
 
   ##  Executando o projeto localmente
   1 . Clone o repositório:
@@ -49,7 +48,7 @@ flowchart TD
   ````
   3 . Executar com Podman Compose:
   ````yml
-   podman-compose up --build
+   docker-compose up --build
   ````
   O sistema estará disponível em: `http://localhost:8080`
     
